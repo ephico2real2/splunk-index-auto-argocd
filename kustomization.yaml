@@ -7,8 +7,9 @@ configMapGenerator:
   - namespace-annotations.sh
   - namespaces.txt
 generatorOptions:
+  disableNameSuffixHash: true
   annotations:
-     argocd.argoproj.io/sync-wave: "-1"
+     argocd.argoproj.io/sync-wave: "-1" 
 resources:
 - job-namespace-annotations.yaml
 patchesStrategicMerge:
