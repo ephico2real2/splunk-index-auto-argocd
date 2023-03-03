@@ -1,0 +1,1 @@
+# splunk-index-auto-argocd
