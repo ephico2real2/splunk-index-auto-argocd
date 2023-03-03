@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: namespace-annotations
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  template:
+    metadata:
+      name: namespace-annotations
+    spec:
+      serviceAccountName: my-service-account
+      containers:
+        - name: namespace-annotations
+          image: bash
+          command:
+            - /bin/sh
+            - -c
+            - |
+              whoami=$(oc whoami)
+              echo "Logged in as: $whoami"
+              oc project openshift-gitops
+              cp /config/namespace-annotations.sh /data/namespace-annotations.sh && \
+              chmod +x /data/namespace-annotations.sh && \
+              cp /config/namespaces.txt /data/namespaces.txt && \
+              /bin/bash /data/namespace-annotations.sh $(cat /data/namespaces.txt)
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+            - name: data-volume
+              mountPath: /data
+          env:
+            - name: DRY_RUN
+              value: "false"
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+            requests:
+              cpu: "500m"
+              memory: "500Mi"
+      restartPolicy: Never
+      volumes:
+        - name: config-volume
+          configMap:
+            name: namespace-annotations-cm
+        - name: data-volume
+          emptyDir: {}

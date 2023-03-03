@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $0 <file>"
+  exit 1
+fi
+
+ANNOTATION_NAME="${ANNOTATION_NAME:-splunk.com/index}"
+FILE="$1"
+
+while IFS= read -r line; do
+  namespace=$(echo "$line" | awk '{print $1}')
+  index_name=$(echo "$line" | awk '{print $2}')
+  if [[ $(oc get namespace "$namespace" -o json | jq -r ".metadata.annotations.\"${ANNOTATION_NAME}\"") == "$index_name" ]]; then
+    echo "Skipping namespace: $namespace"
+  else
+    echo "Annotating namespace: $namespace"
+    oc annotate namespace "$namespace" "${ANNOTATION_NAME}=${index_name}" --dry-run=client -o yaml | oc apply -f -
+  fi
+done < "$FILE"

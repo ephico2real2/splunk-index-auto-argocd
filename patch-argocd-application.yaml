@@ -1,0 +1,6 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: namespace-annotation
+  annotations:
+    kustomize.config.k8s.io/needs-hash: "true"
