@@ -30,4 +30,7 @@ Note that you can use the --help option to see the available command-line argume
 
 ./annotate-namespaces.sh --help
 
+
+you can skip passing the --annotation-value argument, and the script will read the annotation value from the input file for each namespace. If you don't specify the --annotation-value argument, the script will check each namespace to see if it already has the specified annotation key, and if it does, it will skip annotating that namespace. Otherwise, it will use the index name from the input file to annotate the namespace.
+
 ```
