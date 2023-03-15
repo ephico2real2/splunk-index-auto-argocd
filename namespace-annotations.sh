@@ -117,16 +117,12 @@ while read -r line; do
     echo "Namespace '$namespace' already has the '$ANNOTATION_KEY' annotation with the value '$index_name'. Skipping."
     continue
   else
-    if [ "$DRY_RUN" = true ]; then
-      echo "Dry run: Annotating namespace '$namespace' with the '$ANNOTATION_KEY' annotation and value '$index_name'."
-      oc annotate namespace "$namespace" "${ANNOTATION_KEY}=${index_name}" --dry-run=client -o yaml || true
-    else
-      echo "Updating namespace '$namespace' with the new '$ANNOTATION_KEY' annotation value '$index_name'."
-      if ! oc annotate namespace "$namespace" "${ANNOTATION_KEY}=${index_name}"; then
-        echo "Error: Failed to annotate namespace '$namespace'." >&2 || true
-        continue
-      fi
+    echo "Updating namespace '$namespace' with the new '$ANNOTATION_KEY' annotation value '$index_name'."
+    if ! oc annotate namespace "$namespace" "${ANNOTATION_KEY}=${index_name}" --overwrite=true; then
+      echo "Error: Failed to annotate namespace '$namespace'." >&2 || true
+      continue
     fi
   fi
 done < "$FILE"
+
 
