@@ -107,27 +107,26 @@ while read -r line; do
     exit 1
   fi
 
-  # Determine annotation value
-  if [ -z "$ANNOTATION_VALUE" ]; then
-    #current_annotation=$(oc get namespace "$namespace" -o json | jq -r ".metadata.annotations.\"${ANNOTATION_KEY}\"" || true)
-    current_annotation=$(oc get namespace "$namespace" -o json | grep -oP "(?<=\"$ANNOTATION_KEY\": \")[^\"]*" || true)
-    if [[ "$current_annotation" == "$index_name" ]]; then
-      echo "Namespace '$namespace' already has the '$ANNOTATION_KEY' annotation with the value '$index_name'. Skipping."
-      continue
-    fi
-    ANNOTATION_VALUE="$index_name"
-  fi
+ #current_annotation=$(oc get namespace "$namespace" -o json | jq -r ".metadata.annotations.\"${ANNOTATION_KEY}\"" || true)
+      
+  # Get the current annotation value
+  current_annotation=$(oc get namespace "$namespace" -o json | grep -oP "(?<=\"$ANNOTATION_KEY\": \")[^\"]*" || true)
 
-  # Annotate namespace
-  echo "Annotating namespace '$namespace' with the '$ANNOTATION_KEY' annotation and value '$ANNOTATION_VALUE'."
-
-   # Perform a dry-run or apply the annotation
-  if [ "$DRY_RUN" = true ]; then
-    oc annotate namespace "$namespace" "${ANNOTATION_KEY}=${ANNOTATION_VALUE}" --dry-run=client -o yaml || true
+  # Check if the current annotation value matches the one in the input file
+  if [[ "$current_annotation" == "$index_name" ]]; then
+    echo "Namespace '$namespace' already has the '$ANNOTATION_KEY' annotation with the value '$index_name'. Skipping."
+    continue
   else
-    if ! oc annotate namespace "$namespace" "${ANNOTATION_KEY}=${ANNOTATION_VALUE}"; then
-      echo "Error: Failed to annotate namespace '$namespace'." >&2 || true
-      continue
+    if [ "$DRY_RUN" = true ]; then
+      echo "Dry run: Annotating namespace '$namespace' with the '$ANNOTATION_KEY' annotation and value '$index_name'."
+      oc annotate namespace "$namespace" "${ANNOTATION_KEY}=${index_name}" --dry-run=client -o yaml || true
+    else
+      echo "Updating namespace '$namespace' with the new '$ANNOTATION_KEY' annotation value '$index_name'."
+      if ! oc annotate namespace "$namespace" "${ANNOTATION_KEY}=${index_name}"; then
+        echo "Error: Failed to annotate namespace '$namespace'." >&2 || true
+        continue
+      fi
     fi
   fi
 done < "$FILE"
+
