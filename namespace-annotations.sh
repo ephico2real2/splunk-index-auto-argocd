@@ -112,14 +112,12 @@ while read -r line; do
   # Annotate namespace
   echo "Annotating namespace '$namespace' with the '$ANNOTATION_KEY' annotation and value '$ANNOTATION_VALUE'."
 
-  echo "Annotating namespace '$namespace' with the '$ANNOTATION_KEY' annotation and value '$ANNOTATION_VALUE'."
-
-  # Perform a dry-run or apply the annotation
+   # Perform a dry-run or apply the annotation
   if [ "$DRY_RUN" = true ]; then
     oc annotate namespace "$namespace" "${ANNOTATION_KEY}=${ANNOTATION_VALUE}" --dry-run=client -o yaml || true
   else
-    if ! oc annotate namespace "$namespace" "${ANNOTATION_KEY}=${ANNOTATION_VALUE}" --dry-run=client -o yaml | oc apply -f -; then
-      echo "Error: Failed to annotate namespace '$namespace'." >&2
+    if ! oc annotate namespace "$namespace" "${ANNOTATION_KEY}=${ANNOTATION_VALUE}"; then
+      echo "Error: Failed to annotate namespace '$namespace'." >&2 || true
       continue
     fi
   fi
