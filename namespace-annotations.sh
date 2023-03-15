@@ -93,8 +93,12 @@ while read -r line; do
     continue
   fi
 
-  namespace=$(echo "$line" | cut -d' ' -f1)
-  index_name=$(echo "$line" | cut -d' ' -f2-)
+  #namespace=$(echo "$line" | cut -d' ' -f1)
+  #index_name=$(echo "$line" | cut -d' ' -f2-)
+  
+  
+  namespace=$(echo "$line" | awk '{print $1}')
+  index_name=$(echo "$line" | awk '{$1=""; print substr($0, 2)}')
 
   # Check for valid input
   if [[ -z "$namespace" ]]; then
