@@ -2,6 +2,22 @@
 
 # Script to annotate OpenShift namespaces with an index name using a specified annotation key.
 
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+cleanup() {
+  exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    echo "An error occurred. Exiting with code $exit_code." >&2
+  else
+    echo "Script completed successfully."
+  fi
+}
+
+trap cleanup EXIT
+
 usage() {
   echo "Usage: $0 [--file FILE] [--annotation-key KEY] [--annotation-value VALUE] [--dry-run]"
   echo "  --file FILE: input file containing a list of namespaces and index names (default: namespaces.txt)"
