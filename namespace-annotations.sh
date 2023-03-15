@@ -88,6 +88,11 @@ fi
 
 # Loop through namespaces and annotate them if necessary
 while read -r line; do
+  # Skip empty lines or lines with only whitespace
+  if [[ -z "${line// /}" ]]; then
+    continue
+  fi
+
   namespace=$(echo "$line" | cut -d' ' -f1)
   index_name=$(echo "$line" | cut -d' ' -f2-)
 
