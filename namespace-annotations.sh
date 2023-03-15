@@ -84,7 +84,8 @@ while read -r line; do
 
   # Determine annotation value
   if [ -z "$ANNOTATION_VALUE" ]; then
-    current_annotation=$(oc get namespace "$namespace" -o json | jq -r ".metadata.annotations.\"${ANNOTATION_KEY}\"" || true)
+    #current_annotation=$(oc get namespace "$namespace" -o json | jq -r ".metadata.annotations.\"${ANNOTATION_KEY}\"" || true)
+    current_annotation=$(oc get namespace "$namespace" -o json | grep -oP "(?<=\"$ANNOTATION_KEY\": \")[^\"]*" || true)
     if [[ "$current_annotation" == "$index_name" ]]; then
       echo "Namespace '$namespace' already has the '$ANNOTATION_KEY' annotation with the value '$index_name'. Skipping."
       continue
